@@ -22,12 +22,19 @@ const UserSchema = {
     type: DataTypes.STRING
   },
 
+  role: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    defaultValue: 'costumer'
+  },
+
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
     field: 'create_at',
     defaultValue: Sequelize.NOW
-  }
+  },
+
 }
 
 class User extends Model {
