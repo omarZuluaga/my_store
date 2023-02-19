@@ -1,15 +1,10 @@
 const { faker } = require("@faker-js/faker");
+const { models } = require('../libs/sequelize');
 const boom = require('@hapi/boom');
-const { response } = require("express");
-const sequelize = require("../libs/sequelize");
-
-const Sequelize = require('../libs/sequelize');
 
 class ProductsService {
 
   constructor() {
-    this.products = [];
-    this.generate();
   }
 
   generate() {
@@ -30,73 +25,45 @@ class ProductsService {
   }
 
   async create(product) {
-
-    const newProduct = {
-      id: faker.datatype.uuid(),
-      ...product
-    }
-
-    this.products.push(newProduct);
-
+    const newProduct = await models.Product.create(product);
     return newProduct;
   }
 
 
   async find() {
-
-    const query = 'SELECT * FROM tasks';
-    const [data] = await sequelize.query(query);
-    return {
-      data
-    };
+    const products = await models.Product.findAll({
+      include: 'category'
+    });
+    return products;
   }
 
   async findOne(id) {
 
-    const product =  this.products.find(item => item.id === id);
+    const product =  await models.Product.findByPk(id, {
+      include: 'category'
+    });
 
     if(!product) {
       throw boom.notFound('product not found');
     };
 
-    if(product.isBlock) {
-      throw boom.conflict('product is block');
-    }
-
     return product;
   }
 
   async update(id, productChanges) {
+    const product = await this.findOne(id);
+    const productUpdated = await product.update(productChanges);
 
-    const index = this.getIndex(id);
-    const product = this.products[index];
-
-    this.products[index] = {
-      ...product,
-      ...productChanges
-    };
-
-    return this.products[index];
+    return productUpdated;
   }
 
   async delete(id) {
 
-    const index = this.getIndex(id);
-
-    this.products.splice(index);
+    const product = await this.findOne(id);
+    await product.destroy();
     return {
       id
     };
-  }
-
-  getIndex(id) {
-    const index = this.products.findIndex(item => item.id === id);
-
-    if(index === -1) {
-      throw boom.notFound('Product not found');
-    }
-
-    return index;
   }
 
 }

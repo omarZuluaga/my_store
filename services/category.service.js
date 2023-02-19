@@ -1,19 +1,42 @@
-
+const { models } = require('./../libs/sequelize');
+const boom = require('@hapi/boom');
 class CategoriesService {
 
-  constructor() {
-    this.categories = [];
+  constructor() {}
+
+  async create(data) {
+    const newCategory = await models.Category.create(data);
+    return newCategory;
   }
 
-  create() {}
+  async find() {
+    const categories = await models.Category.findAll();
+    return categories;
+  }
 
-  find() {}
+  async findOne(id) {
+    const category = await models.Category.findByPk(id, {
+      include: 'products'
+    });
 
-  findOne() {}
+    if(!category) {
+      throw boom.notFound('category not found');
+    }
+    return category;
+  }
 
-  update() {}
+  async update(id, changes) {
+    const category = await this.findOne(id);
+    const categoryUpdated = await category.update(changes);
+    return categoryUpdated;
+  }
 
-  delete() {}
+  async delete(id) {
+    const category = await this.findOne(id);
+    await category.destroy();
+    return {id};
+  }
+
 }
 
 module.exports = CategoriesService;

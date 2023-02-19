@@ -35,7 +35,7 @@ const ProductSchema = {
     defaultValue: Sequelize.NOW
   },
   categoryId: {
-    field: 'user_id',
+    field: 'category_id',
     allowNull: false,
     type: DataTypes.INTEGER,
     unique: false,
