@@ -1,13 +1,11 @@
 const boom = require('@hapi/boom');
 const {models} = require('../libs/sequelize');
 
-export class OrderService {
+class OrderService {
   constructor() {}
 
   async create(order) {
-    const newOrder = await models.Order.create(order, {
-      include: ['customer']
-    });
+    const newOrder = await models.Order.create(order);
     return newOrder;
   }
 
@@ -18,7 +16,14 @@ export class OrderService {
   }
 
   async findOne(id) {
-    const order = await models.Order.findByPk(id);
+    const order = await models.Order.findByPk(id, {
+      include: [
+        {
+          association: 'customer',
+          include: ['user']
+        }
+      ]
+    });
     if(!order) {
       throw boom.notFound('order not found');
     }
@@ -36,3 +41,5 @@ export class OrderService {
     return {id};
   }
 }
+
+module.exports = OrderService;
