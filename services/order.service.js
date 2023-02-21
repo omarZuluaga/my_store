@@ -21,7 +21,8 @@ class OrderService {
         {
           association: 'customer',
           include: ['user']
-        }
+        },
+        'items'
       ]
     });
     if(!order) {
@@ -40,6 +41,12 @@ class OrderService {
     await orderFinded.destroy();
     return {id};
   }
+
+  async addItem(item) {
+    const newItem = await models.OrderProduct.create(item);
+    return newItem;
+  }
+
 }
 
 module.exports = OrderService;

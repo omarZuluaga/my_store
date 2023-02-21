@@ -19,7 +19,7 @@ router.post('/',
     res.status(201).json(newCategory);
 });1
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     const categories = await categoriesService.find();
     res.json(categories);
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id',
   validatorHandler(getCategorySchema, 'parms'),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const { id } = req.params;
       const category = await categoriesService.findOne(id);
@@ -43,7 +43,7 @@ router.get('/:id',
 router.patch('/:id',
   validatorHandler(getCategorySchema, 'params'),
   validatorHandler(updateCategorySchema, 'body'),
-  async(req, res) => {
+  async(req, res, next) => {
     try {
       const { id } = req.params;
       const body  = req.body;
@@ -56,7 +56,7 @@ router.patch('/:id',
 
 router.delete('/:id',
   validatorHandler(getCategorySchema, 'params'),
-  async(req, res) => {
+  async(req, res, next) => {
     try {
       const { id } = req.params;
       await categoriesService.delete(id);
