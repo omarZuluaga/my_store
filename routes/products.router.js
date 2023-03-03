@@ -9,6 +9,7 @@ const {
   queryProductShema,
 
 } = require('./../schemas/product.schema');
+const passport = require('passport');
 const router = express.Router();
 
 const service = new ProductsService();
@@ -44,17 +45,23 @@ router.get('/:id', validatorHandler(getProducSchema, 'params'), async (req, res,
 });
 
 router.post('/',
+  passport.authenticate('jwt', {session: false}),
   validatorHandler(createProductSchem, 'body'),
-  async (req, res) => {
+  async (req, res, next) => {
 
-    const body = req.body;
-    const newProduct = await service.create(body);
+    try {
+      const body = req.body;
+      const newProduct = await service.create(body);
 
-    res.status(201).json(newProduct);
+      res.status(201).json(newProduct);
+    } catch (error) {
+      next(error);
+    }
 
 });
 
 router.patch('/:id',
+  passport.authenticate('jwt', {session: false}),
   validatorHandler(getProducSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   async (req, res) => {
@@ -75,12 +82,18 @@ router.patch('/:id',
 
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',
+  passport.authenticate('jwt', {session: false}),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
 
-  const { id } = req.params;
-  const updatedId = await service.delete(id);
+      const updatedId = await service.delete(id);
 
-  res.json(updatedId);
+      res.json(updatedId);
+    } catch (error) {
+      next(error);
+    }
 });
 
 module.exports = router;
